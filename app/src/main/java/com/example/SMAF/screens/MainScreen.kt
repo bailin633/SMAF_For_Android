@@ -160,7 +160,7 @@ fun HomeScreen() {
         Column(modifier = Modifier.padding(top = 100.dp, start = 300.dp)) {
             MyButton(
                 text = "测试",
-                backgroundColor = Color.Black,
+                backgroundColor = Color.Red,
                 onClick = {},
                 modifier = Modifier.size(80.dp, 40.dp)
             )
@@ -218,7 +218,7 @@ fun MyCard(
                         Image(
                             painter = painterResource(id = R.drawable.android_phone), // 引用 drawable 文件夹中的 PNG 图像
                             contentDescription = "Android Phone Icon", // 内容描述
-                            modifier = Modifier.size(32.dp) // 设置图像大小
+                            modifier = Modifier.size(64.dp) // 设置图像大小
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp)) // 添加间距

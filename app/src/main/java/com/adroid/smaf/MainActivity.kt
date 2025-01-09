@@ -1,25 +1,45 @@
 package com.adroid.smaf
 
-import com.adroid.smaf.screen.HomeScreen
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import com.adroid.smaf.screen.HomeScreen
+import com.adroid.smaf.screen.ProfileScreen
 import com.adroid.smaf.ui.theme.SMAF_AndroidTheme
 
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("ObsoleteSdkInt")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 禁用状态栏的自动背景颜色变化
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // 设置状态栏透明（避免渐变背景覆盖）
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+            controller.isAppearanceLightStatusBars = true // 设置状态栏图标为深色
+            window.statusBarColor = Color.Transparent.toArgb() // 设置状态栏为透明
+        } else {
+            // 对于较低版本，仍然使用原先的方法
+            window.statusBarColor = Color.Transparent.toArgb()
+        }
+
         enableEdgeToEdge()  // 启用边缘到边缘布局，去除状态栏和导航栏的空白
         setContent {
             SMAF_AndroidTheme {
@@ -95,13 +115,4 @@ fun GalleryScreen(modifier: Modifier = Modifier) {
 }
 
 
-
-@Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
-    // 个人页面的内容
-    Box(modifier = modifier.fillMaxSize()) {
-        // 居中显示文本“个人”
-        Text(text = "个人", modifier = Modifier.align(Alignment.Center))
-    }
-}
 

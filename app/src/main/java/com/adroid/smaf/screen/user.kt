@@ -1,8 +1,8 @@
 package com.adroid.smaf.screen
 
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,32 +13,35 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import coil.size.Scale
+import com.adroid.smaf.function.ProfileViewModel
+import java.io.File
 
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
-    //保存选中的图片Uri
-    val imageUriState: MutableState<Uri?> = remember { mutableStateOf(null) }
-
+fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = viewModel()) {
+    val context = LocalContext.current
+    // 从 ViewModel 中获取 imagePathState
+    val imagePath by viewModel.imagePathState.collectAsState()
 
     // ActivityResultLauncher 来启动图片选择器
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         // 在这里处理用户选择的图片 URI
         uri?.let {
             //更新选中的Uri图片
-            imageUriState.value = it
+            viewModel.updateImageUri(context, it)
         }
     }
 
@@ -56,7 +59,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .align(Alignment.Center) // 居中显示
                 .offset(y = (-280).dp), // 向上移动
-            imageUri = imageUriState.value  //传递图片Uri
+            imagePath = imagePath // 传递图片路径
         )
 
         // 使用 Column 来排列卡片
@@ -93,14 +96,14 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
     }
 }
 
+
 // 头像组件，创建一个简单的圆形
 @Composable
 fun UserAvatar(
     size: Dp = 100.dp,
     modifier: Modifier = Modifier,
     onClick:() -> Unit= {},  //点击事件回调
-    imageUri: Uri? = null
-
+    imagePath: String? = null // 修改为 imagePath: String? = null
 ) {
 
     Box(
@@ -108,13 +111,13 @@ fun UserAvatar(
             .size(size) // 设置组件大小
             .clip(CircleShape) // 裁剪成圆形
             .background(Color.Gray) // 默认背景色
-            .border(2.dp, Color.Gray, CircleShape) // 边框
+            .border(1.dp, Color.Gray, CircleShape) // 边框
             .clickable { onClick() } // 为头像框添加点击事件
     ) {
-        //显示图片，若imageUri不为空
-        imageUri?.let {
+        //显示图片，若imagePath不为空
+        imagePath?.let {
             val painter = rememberImagePainter(
-                data = it,
+                data = File(it), // 从文件路径加载图片
                 builder = {scale(Scale.FILL)}
             )
             Image(

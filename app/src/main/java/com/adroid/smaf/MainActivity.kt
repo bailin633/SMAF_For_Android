@@ -6,21 +6,27 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.adroid.smaf.screen.HomeScreen
 import com.adroid.smaf.screen.ProfileScreen
 import com.adroid.smaf.ui.theme.SMAF_AndroidTheme
-
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("ObsoleteSdkInt")
@@ -53,13 +59,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     // 状态管理：控制当前选中的底部导航栏项，默认为 0 (图库)
-    var selectedItem by remember { mutableStateOf(0) }
+    var selectedItem by remember { mutableIntStateOf(0) }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .systemBarsPadding(),  //防止内容被状态导航栏覆盖
         bottomBar = {
             // 显示底部导航栏，传递当前选中的项和点击后的处理方法
-            NavigationBar(selectedItem = selectedItem, onItemSelected = { selectedItem = it })
+            CustomNavigationBar(selectedItem = selectedItem, onItemSelected = { selectedItem = it })
         }
     ) { innerPadding ->
         // 根据 selectedItem 的值显示不同的屏幕内容
@@ -72,38 +79,61 @@ fun MainScreen() {
 }
 
 @Composable
-fun NavigationBar(selectedItem: Int, onItemSelected: (Int) -> Unit) {
-    // 使用新的 NavigationBar 来替代旧的 BottomNavigation
+fun CustomNavigationBar(
+    selectedItem: Int,
+    onItemSelected: (Int) -> Unit
+) {
+    // 定义导航栏选项
+    val navItems = listOf(
+        NavItem("图库", Icons.Default.PlayArrow),
+        NavItem("主页", Icons.Default.Home),
+        NavItem("个人", Icons.Default.Person)
+    )
+
+    // 自定义高度，调整背景颜色，去除多余的内边距
     NavigationBar(
-        modifier = Modifier.fillMaxWidth()  // 填充整个宽度
+        modifier = Modifier
+            .fillMaxWidth()  // 填充整个宽度
+            .offset(y = 5.dp) // 可选的微小偏移
+            .height(56.dp)   // 设置导航栏的高度
+            .clip(RoundedCornerShape(0.dp)) // 保证不影响宽度，去掉圆角或者使用较小圆角
+            .padding(0.dp),  // 去除导航栏的默认内边距
+        containerColor = Color.White,  // 设置背景色
+        tonalElevation = 4.dp  // 阴影效果
     ) {
-        // 图库选项
-        NavigationBarItem(
-            selected = selectedItem == 0,  // 判断当前是否选中
-            onClick = { onItemSelected(0) },  // 点击时选择对应的项
-            label = { Text("图库") },  // 显示选项的文字标签
-            icon = { Icon(Icons.Default.Home, contentDescription = null) }  // 使用 PhotoLibrary 图标
-
-
-        )
-
-        // 主页选项
-        NavigationBarItem(
-            selected = selectedItem == 1,  // 判断当前是否选中
-            onClick = { onItemSelected(1) },  // 点击时选择对应的项
-            label = { Text("主页") },  // 显示选项的文字标签
-            icon = { Icon(Icons.Default.Home, contentDescription = null) }  // 显示主页图标
-        )
-
-        // 个人选项
-        NavigationBarItem(
-            selected = selectedItem == 2,  // 判断当前是否选中
-            onClick = { onItemSelected(2) },  // 点击时选择对应的项
-            label = { Text("个人") },  // 显示选项的文字标签
-            icon = { Icon(Icons.Default.Person, contentDescription = null) }  // 显示个人图标
-        )
+        // 动态生成每个 NavigationBarItem
+        navItems.forEachIndexed { index, navItem ->
+            NavigationBarItem(
+                selected = selectedItem == index,  // 判断当前是否选中
+                onClick = { onItemSelected(index) },  // 点击时选择对应的项
+                label = {
+                    Text(
+                        text = navItem.label,
+                        style = MaterialTheme.typography.bodySmall.copy( // 调整文字大小
+                            color = if (selectedItem == index) Color(0xFF6200EE) else Color.Gray
+                        )
+                    )
+                },  // 显示选项的文字标签
+                icon = {
+                    Icon(
+                        navItem.icon,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp) // 调整图标大小
+                            .padding(0.dp), // 去除图标的额外内边距
+                        tint = if (selectedItem == index) Color(0xFF6200EE) else Color.Gray
+                    )
+                },  // 使用图标
+                modifier = Modifier.padding(horizontal = 8.dp) // 控制图标之间的间隔
+            )
+        }
     }
 }
+
+
+
+// 用于封装导航项的信息
+data class NavItem(val label: String, val icon: ImageVector)
 
 @Composable
 fun GalleryScreen(modifier: Modifier = Modifier) {
@@ -113,6 +143,3 @@ fun GalleryScreen(modifier: Modifier = Modifier) {
         Text(text = "图库", modifier = Modifier.align(Alignment.Center))
     }
 }
-
-
-

@@ -1,6 +1,8 @@
 package com.adroid.smaf.screen
 
 
+import com.adroid.smaf.R
+import android.app.Application
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,16 +23,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import coil.size.Scale
+import coil.size.Size
 import com.adroid.smaf.function.ProfileViewModel
 import java.io.File
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.provideFactory(LocalContext.current))) {
+fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Companion.provideFactory(LocalContext.current.applicationContext as Application))) {
     val context = LocalContext.current
     // 从 ViewModel 中获取 imagePathState
     val imagePath by viewModel.imagePathState.collectAsState()
@@ -40,7 +45,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = v
         // 在这里处理用户选择的图片 URI
         uri?.let {
             //更新选中的Uri图片
-            viewModel.updateImageUri(context, it)
+            viewModel.updateImageUri(it)
         }
     }
 
@@ -60,7 +65,6 @@ fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = v
                 .offset(y = (-280).dp), // 向上移动
             imagePath = imagePath // 传递图片路径
         )
-
         // 使用 Column 来排列卡片
         Column(
             modifier = Modifier
@@ -111,15 +115,18 @@ fun UserAvatar(
         modifier = modifier
             .size(size) // 设置组件大小
             .clip(CircleShape) // 裁剪成圆形
-            .background(Color.Gray) // 默认背景色
             .border(1.dp, Color.Gray, CircleShape) // 边框
             .clickable { onClick() } // 为头像框添加点击事件
     ) {
         //显示图片，若imagePath不为空
-        imagePath?.let {
+        if(imagePath!=null){
+            val request = ImageRequest.Builder(LocalContext.current)
+                .data(File(imagePath))
+                .size(Size(size.value.toInt(), size.value.toInt()))
+                .scale(Scale.FILL)
+                .build()
             val painter = rememberImagePainter(
-                data = File(it), // 从文件路径加载图片
-                builder = {scale(Scale.FILL)}
+                request = request
             )
             Image(
                 painter = painter,
@@ -127,6 +134,22 @@ fun UserAvatar(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
                     .clip(CircleShape) // 填充整个圆形框并裁剪
+            )
+        }else{
+            //如果没有图片显示自定义图标上传
+            val  request = ImageRequest.Builder(LocalContext.current)
+                .data(File(""))   //自定义的图片路径
+                // 设置组件的大小，将传入的 size 参数值减半后，转为整型，再用其创建一个新的 Size 对象
+                .size(Size((size.value / 2).toInt(), (size.value / 2).toInt()))
+                .build()
+            Image(
+                painter = painterResource(id = R.drawable.upload_user),
+                contentDescription = "Upload Icon",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .align(Alignment.Center)  //图标居中显示
+                    .size(80.dp)
+
             )
         }
     }

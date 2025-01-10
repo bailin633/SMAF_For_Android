@@ -12,4 +12,6 @@ fun HomeScreen(modifier: Modifier) {
         Text(text = "点击我")  // 按钮上的文字
     }
 }
+fun main(){
 
+}

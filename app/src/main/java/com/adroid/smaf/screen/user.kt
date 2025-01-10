@@ -1,7 +1,6 @@
 package com.adroid.smaf.screen
 
 
-import com.adroid.smaf.R
 import android.app.Application
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -26,13 +25,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.size.Scale
 import coil.size.Size
+import com.adroid.smaf.R
 import com.adroid.smaf.function.ProfileViewModel
 import java.io.File
+import com.adroid.smaf.function.UserNameInput
 
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Companion.provideFactory(LocalContext.current.applicationContext as Application))) {
@@ -50,7 +52,8 @@ fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = v
     }
 
     Box(
-        modifier = Modifier.fillMaxSize() // 使整个屏幕填充
+        modifier = Modifier
+            .fillMaxSize() // 使整个屏幕填充
             .background(Color.White)
     ) {
         // 头像框，传递图片 URI
@@ -65,11 +68,13 @@ fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = v
                 .offset(y = (-280).dp), // 向上移动
             imagePath = imagePath // 传递图片路径
         )
+
         // 使用 Column 来排列卡片
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .offset(y = 320.dp),
+                .offset(y = 320.dp) // 卡片的位置
+                .zIndex(0f), // 确保卡片在输入框下方
             horizontalAlignment = Alignment.CenterHorizontally, // 卡片水平居中
             verticalArrangement = Arrangement.spacedBy(30.dp)  // 卡片之间的垂直间隔
         ) {
@@ -94,10 +99,12 @@ fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = v
                 height = 83.dp
             )
         }
-
-
-
-
+    }
+    Box(
+        modifier = Modifier
+    ){
+        // 输入框的显示部分
+        UserNameInput()
     }
 }
 
@@ -148,12 +155,14 @@ fun UserAvatar(
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .align(Alignment.Center)  //图标居中显示
-                    .size(80.dp)
+                    .size(70.dp)
 
             )
         }
     }
 }
+
+
 
 @Composable
 fun Profile_Card(

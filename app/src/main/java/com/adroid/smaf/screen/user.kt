@@ -29,9 +29,8 @@ import coil.size.Scale
 import com.adroid.smaf.function.ProfileViewModel
 import java.io.File
 
-
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = viewModel()) {
+fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.provideFactory(LocalContext.current))) {
     val context = LocalContext.current
     // 从 ViewModel 中获取 imagePathState
     val imagePath by viewModel.imagePathState.collectAsState()
@@ -91,6 +90,8 @@ fun ProfileScreen(modifier: Modifier = Modifier, viewModel: ProfileViewModel = v
                 height = 83.dp
             )
         }
+
+
 
 
     }

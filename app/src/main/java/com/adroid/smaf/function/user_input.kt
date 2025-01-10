@@ -3,6 +3,8 @@ package com.adroid.smaf.function
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -79,6 +83,11 @@ fun UserNameInput() {
                 modifier = Modifier
                     .clickable { isEditing = true } // 点击时进入编辑状态
                     .padding(8.dp)
+                    .clickable(
+                        onClick = {isEditing = true},
+                        indication = null, //禁用点击反馈
+                        interactionSource = remember { MutableInteractionSource() } //禁用文本选择
+                    )
             )
         }
 
